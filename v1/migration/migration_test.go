@@ -1,13 +1,12 @@
-package go_db_migration
+package migration
 
 import (
 	"database/sql"
-	"github.com/euphoria-laxis/go-db-migration/v1/migration"
 	"testing"
 )
 
 func TestGenerateDatabaseMigration(t *testing.T) {
-	migrator := migration.NewMigrator()
+	migrator := NewMigrator()
 	err := migrator.GenerateDatabaseMigration("migration")
 	if err != nil {
 		t.Fatal(err)
@@ -39,7 +38,7 @@ func TestGenerateMigration(t *testing.T) {
 	}
 	m1 := model1{}
 	m2 := model2{}
-	migrator := migration.NewMigrator()
+	migrator := NewMigrator()
 	err := migrator.GenerateMigration(m1, m2)
 	if err != nil {
 		t.Fatal(err)
