@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func TestGenerateMigrationV2(t *testing.T) {
+func TestGenerateMigrations(t *testing.T) {
 	type model1 struct {
 		ID        int          `json:"id" migration:"constraints:primary key,not null,unique,auto_increment;index"`
 		Username  string       `json:"username" migration:"constraints:not null,unique;index"`
@@ -54,6 +54,7 @@ func TestGenerateMigrationV2(t *testing.T) {
 		WithForeignKeys(true),
 		WithSnakeCase(true),
 		SetDefaultTextSize(128),
+		SetDriver("mysql"),
 	)
 	err = migrator.MigrateModels(m1, m2)
 	if err != nil {
