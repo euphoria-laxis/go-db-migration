@@ -1,8 +1,7 @@
-package go_db_migration
+package migration
 
 import (
 	"database/sql"
-	"github.com/euphoria-laxis/go-db-migration/v2/migration"
 	"github.com/go-sql-driver/mysql"
 	"testing"
 	"time"
@@ -49,9 +48,12 @@ func TestGenerateMigrationV2(t *testing.T) {
 	if pingErr != nil {
 		t.Fatal(pingErr)
 	}
-	migrator := migration.NewMigrator(
-		migration.SetDB(db),
-		migration.SetDBName("migrations"),
+	migrator := NewMigrator(
+		SetDB(db),
+		SetTablePrefix("app_"),
+		WithForeignKeys(true),
+		WithSnakeCase(true),
+		SetDefaultTextSize(128),
 	)
 	err = migrator.MigrateModels(m1, m2)
 	if err != nil {

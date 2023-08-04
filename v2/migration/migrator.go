@@ -5,9 +5,7 @@ import "database/sql"
 const (
 	DBDriverPostgres DBDriver = iota
 	DBDriverMySQL
-	DBDriverMariaDB
 	DBDriverSQLite
-	DBDriverSQLite3
 )
 
 type DBDriver int
@@ -18,14 +16,10 @@ func (d DBDriver) String() string {
 		return "postgres"
 	case DBDriverMySQL:
 		return "mysql"
-	case DBDriverMariaDB:
-		return "mysql"
 	case DBDriverSQLite:
 		return "sqlite"
-	case DBDriverSQLite3:
-		return "sqlite3"
 	default:
-		return "sqlite3"
+		return "sqlite"
 	}
 }
 
@@ -35,40 +29,34 @@ func NewDBDriver(driver string) DBDriver {
 		return DBDriverPostgres
 	case "mysql":
 		return DBDriverMySQL
-	case "mariadb":
-		return DBDriverMariaDB
 	case "sqlite":
 		return DBDriverSQLite
-	case "sqlite3":
-		return DBDriverSQLite3
 	default:
-		return DBDriverSQLite3
+		return DBDriverSQLite
 	}
 }
 
 type Options struct {
-	SnakeCase bool
-	DB        *sql.DB
-	DBName    string
+	SnakeCase         bool
+	DB                *sql.DB
+	DefaultTextSize   uint8
+	IgnoreForeignKeys bool
+	TablePrefix       string
 }
 
 type OptFunc func(*Options)
 
 var defaultOptions = Options{
-	SnakeCase: true,
-	DB:        nil,
-	DBName:    "",
+	SnakeCase:         true,
+	DB:                nil,
+	DefaultTextSize:   255,
+	IgnoreForeignKeys: false,
+	TablePrefix:       "",
 }
 
 func WithSnakeCase(active bool) OptFunc {
 	return func(opts *Options) {
 		opts.SnakeCase = active
-	}
-}
-
-func SetDBName(name string) OptFunc {
-	return func(opts *Options) {
-		opts.DBName = name
 	}
 }
 
@@ -78,10 +66,34 @@ func SetDB(db *sql.DB) OptFunc {
 	}
 }
 
+func SetDefaultTextSize(size uint8) OptFunc {
+	return func(opts *Options) {
+		if size > 0 {
+			opts.DefaultTextSize = size
+		} else {
+			opts.DefaultTextSize = 255
+		}
+	}
+}
+
+func WithForeignKeys(foreignKeys bool) OptFunc {
+	return func(opts *Options) {
+		opts.IgnoreForeignKeys = !foreignKeys
+	}
+}
+
+func SetTablePrefix(prefix string) OptFunc {
+	return func(opts *Options) {
+		opts.TablePrefix = prefix
+	}
+}
+
 type Migrator struct {
-	SnakeCase bool
-	DB        *sql.DB
-	Name      string
+	SnakeCase         bool
+	DB                *sql.DB
+	DefaultTextSize   uint8
+	IgnoreForeignKeys bool
+	TablePrefix       string
 }
 
 func NewMigrator(opts ...OptFunc) *Migrator {
@@ -90,9 +102,11 @@ func NewMigrator(opts ...OptFunc) *Migrator {
 		fn(&o)
 	}
 	migrator := Migrator{
-		DB:        o.DB,
-		Name:      o.DBName,
-		SnakeCase: o.SnakeCase,
+		DB:                o.DB,
+		SnakeCase:         o.SnakeCase,
+		DefaultTextSize:   o.DefaultTextSize,
+		IgnoreForeignKeys: o.IgnoreForeignKeys,
+		TablePrefix:       o.TablePrefix,
 	}
 
 	return &migrator
