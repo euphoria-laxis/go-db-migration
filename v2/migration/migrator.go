@@ -37,6 +37,7 @@ func NewDBDriver(driver string) DBDriver {
 }
 
 type Options struct {
+	Driver            DBDriver
 	SnakeCase         bool
 	DB                *sql.DB
 	DefaultTextSize   uint8
@@ -52,6 +53,13 @@ var defaultOptions = Options{
 	DefaultTextSize:   255,
 	IgnoreForeignKeys: false,
 	TablePrefix:       "",
+}
+
+func SetDriver(driver string) OptFunc {
+	return func(opts *Options) {
+		d := NewDBDriver(driver)
+		opts.Driver = d
+	}
 }
 
 func WithSnakeCase(active bool) OptFunc {
@@ -89,6 +97,7 @@ func SetTablePrefix(prefix string) OptFunc {
 }
 
 type Migrator struct {
+	Driver            DBDriver
 	SnakeCase         bool
 	DB                *sql.DB
 	DefaultTextSize   uint8
@@ -102,6 +111,7 @@ func NewMigrator(opts ...OptFunc) *Migrator {
 		fn(&o)
 	}
 	migrator := Migrator{
+		Driver:            o.Driver,
 		DB:                o.DB,
 		SnakeCase:         o.SnakeCase,
 		DefaultTextSize:   o.DefaultTextSize,
