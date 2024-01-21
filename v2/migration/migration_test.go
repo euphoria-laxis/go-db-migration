@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-func TestGenerateMigrations(t *testing.T) {
+func TestGenerateMySQLMigrations(t *testing.T) {
 	type model1 struct {
 		ID        int          `json:"id" migration:"constraints:primary key,not null,unique,auto_increment;index"`
 		Username  string       `json:"username" migration:"constraints:not null,unique;index"`
 		CreatedAt time.Time    `json:"created_at" migration:"default:now()"`
 		UpdatedAt time.Time    `json:"updated_at" migration:"default:now()"`
-		DeletedAt sql.NullTime `json:"deleted_at" migration:"default:now()"`
+		DeletedAt sql.NullTime `json:"deleted_at"`
 		Name      string       `json:"name" migration:"constraint:not null"`
 		Content   string       `json:"content" migration:"type:text;constraints:not null"`
 		Role      string       `json:"role" migration:"constraints:not null;default:user"`
@@ -23,7 +23,7 @@ func TestGenerateMigrations(t *testing.T) {
 		Username  string       `json:"username" migration:"constraints:not null,unique;index"`
 		CreatedAt time.Time    `json:"created_at" migration:"default:now()"`
 		UpdatedAt time.Time    `json:"updated_at" migration:"default:now()"`
-		DeletedAt sql.NullTime `json:"deleted_at" migration:"default:now()"`
+		DeletedAt sql.NullTime `json:"deleted_at"`
 		Name      string       `json:"name" migration:"constraints:not null"`
 		Content   string       `json:"content" migration:"type:text;constraints:not null"`
 		Role      string       `json:"role" migration:"constraints:not null;default:user"`

@@ -78,9 +78,10 @@ func (m *Migrator) generateMySqlColumnMigration(table string, params map[string]
 			defaultValue = "'" + defaultValue + "'"
 		}
 		query = fmt.Sprintf(
-			"ALTER TABLE %s ALTER %s SET DEFAULT %s;\n",
+			"ALTER TABLE %s MODIFY COLUMN %s %s DEFAULT %s;\n",
 			table,
 			params["column"],
+			params["type"],
 			defaultValue,
 		)
 
