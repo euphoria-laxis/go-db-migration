@@ -119,7 +119,7 @@ func (m *Migrator) generateMySqlColumnMigration(table string, params map[string]
 	return nil
 }
 
-type Result struct {
+type MysqlTableInfo struct {
 	Field   string
 	Type    string
 	Null    string
@@ -128,13 +128,13 @@ type Result struct {
 	Default interface{}
 }
 
-func (m *Migrator) getMySqlSchemaInformation(table, column string) (*Result, error) {
+func (m *Migrator) getMySqlSchemaInformation(table, column string) (*MysqlTableInfo, error) {
 	query := fmt.Sprintf(
 		"select COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_KEY, EXTRA, COLUMN_DEFAULT from information_schema.COLUMNS where table_name = '%s' and column_name = '%s' ;",
 		table,
 		column,
 	)
-	var result Result
+	var result MysqlTableInfo
 	err := m.DB.QueryRow(query).Scan(&result.Field, &result.Type, &result.Null, &result.Key, &result.Extra, &result.Default)
 	if err != nil {
 		return nil, err
