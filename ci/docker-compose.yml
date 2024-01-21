@@ -18,9 +18,9 @@ services:
         image: postgres:14-alpine
         restart: always
         environment:
-            POSTGRES_USER: 'migration'
+            POSTGRES_USER: 'migration_test'
             POSTGRES_PASSWORD: 'password@123'
-            POSTGRES_DB: 'migration_test'
+            POSTGRES_DB: 'migration'
         ports:
             - '5432:5432'
         expose:
