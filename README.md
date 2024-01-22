@@ -151,7 +151,7 @@ docker-compose up # containers available: mysql, postgres
 ### Add tests
 
 Update existing tests in [`migration_test.go`](./v2/migration/migration_test.go) or create a new
-file. It must be validated by [`go.yml`](./.github/workflows/go.yml) workflow to validate the pull
+file. It must be validated by [`test.yml`](./.github/workflows/test.yml) workflow to validate the pull
 request.
 
 ### Submitting your contribution

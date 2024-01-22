@@ -1,26 +1,26 @@
 version: '3.8'
 services:
-    mysql:
+    test_mysql:
         image: mysql:8.0
         restart: always
         environment:
-            MYSQL_DATABASE: 'migration'
-            MYSQL_USER: 'migration_test'
-            MYSQL_PASSWORD: 'password@123'
-            MYSQL_ROOT_PASSWORD: 'password@123'
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
+            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
         ports:
             - '3306:3306'
         expose:
             - '3306'
         volumes:
             - mysql:/var/lib/mysql
-    postgres:
+    test_postgres:
         image: postgres:14-alpine
         restart: always
         environment:
-            POSTGRES_USER: 'migration'
-            POSTGRES_PASSWORD: 'password@123'
-            POSTGRES_DB: 'migration_test'
+            - POSTGRES_USER=${POSTGRES_USER}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            - POSTGRES_DB=${POSTGRES_DB}
         ports:
             - '5432:5432'
         expose:

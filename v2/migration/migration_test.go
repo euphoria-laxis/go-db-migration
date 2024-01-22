@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
+	"os"
+	"strings"
 	"testing"
 	"time"
 )
@@ -20,7 +22,7 @@ func TestGenerateMySQLMigrations(t *testing.T) {
 		Content   string       `json:"content" migration:"type:text;constraints:not null"`
 		Role      string       `json:"role" migration:"constraints:not null;default:user"`
 	}
-	type Model2 struct {
+	type model2 struct {
 		ID        int          `json:"id" migration:"constraints:primary key,not null,unique,auto_increment;index"`
 		Username  string       `json:"username" migration:"constraints:not null,unique;index"`
 		CreatedAt time.Time    `json:"created_at" migration:"default:now()"`
@@ -31,24 +33,32 @@ func TestGenerateMySQLMigrations(t *testing.T) {
 		Role      string       `json:"role" migration:"constraints:not null;default:user"`
 		Valid     bool         `json:"valid" migration:"default:false"`
 	}
-	m1 := model1{}
-	m2 := Model2{}
+	user := "migration_test"
+	passwd := "password@123"
+	dbname := "migration"
+	if strings.Contains(os.Getenv("ENVIRONMENT"), "test") {
+		user = os.Getenv("MYSQL_USER")
+		passwd = os.Getenv("MYSQL_PASSWORD")
+		dbname = os.Getenv("MYSQL_DATABASE")
+	}
+	// Generate MySQL config
 	cfg := mysql.Config{
-		User:                 "migration_test",
-		Passwd:               "password@123",
+		User:                 user,
+		Passwd:               passwd,
 		Net:                  "tcp",
 		Addr:                 "127.0.0.1:3306",
-		DBName:               "migration",
+		DBName:               dbname,
 		AllowNativePasswords: true,
 	}
-	var err error
+	// Connect to MySQL
 	db, err := sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
 		t.Fatal(err)
 	}
-	pingErr := db.Ping()
-	if pingErr != nil {
-		t.Fatal(pingErr)
+	// Check if MySQL server is accessible
+	err = db.Ping()
+	if err != nil {
+		t.Fatal(err)
 	}
 	migrator := NewMigrator(
 		SetDB(db),
@@ -58,7 +68,7 @@ func TestGenerateMySQLMigrations(t *testing.T) {
 		SetDefaultTextSize(128),
 		SetDriver("mysql"),
 	)
-	err = migrator.MigrateModels(m1, m2)
+	err = migrator.MigrateModels(model1{}, model2{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -75,7 +85,7 @@ func TestGeneratePostgresMigrations(t *testing.T) {
 		Content   string       `json:"content" migration:"type:text;constraints:not null"`
 		Role      string       `json:"role" migration:"constraints:not null;default:user"`
 	}
-	type Model2 struct {
+	type model2 struct {
 		ID        int          `json:"id" migration:"constraints:primary key,not null,unique,auto_increment;index"`
 		Username  string       `json:"username" migration:"constraints:not null,unique;index"`
 		CreatedAt time.Time    `json:"created_at" migration:"default:now()"`
@@ -86,13 +96,17 @@ func TestGeneratePostgresMigrations(t *testing.T) {
 		Role      string       `json:"role" migration:"constraints:not null;default:user"`
 		Valid     bool         `json:"valid" migration:"default:false"`
 	}
-	m1 := model1{}
-	m2 := Model2{}
 	host := "localhost"
 	port := 5432
-	user := "migration_test"
+	user := "migration"
 	password := "password@123"
-	dbname := "migration"
+	dbname := "migration_test"
+	if strings.Contains(os.Getenv("ENVIRONMENT"), "test") {
+		user = os.Getenv("POSTGRES_USER")
+		password = os.Getenv("POSTGRES_PASSWORD")
+		dbname = os.Getenv("POSTGRES_DB")
+	}
+	// Create Postgres DSN
 	dsn := fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host,
@@ -101,11 +115,12 @@ func TestGeneratePostgresMigrations(t *testing.T) {
 		password,
 		dbname,
 	)
-	// Connect to database
+	// Connect to Postgres
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		t.Fatal(err)
 	}
+	// Check if Postgres server is accessible
 	err = db.Ping()
 	if err != nil {
 		t.Fatal(err)
@@ -118,7 +133,7 @@ func TestGeneratePostgresMigrations(t *testing.T) {
 		SetDefaultTextSize(128),
 		SetDriver("postgres"),
 	)
-	err = migrator.MigrateModels(m1, m2)
+	err = migrator.MigrateModels(model1{}, model2{})
 	if err != nil {
 		t.Fatal(err)
 	}
