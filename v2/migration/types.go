@@ -16,12 +16,27 @@ func (m *Migrator) convertType(kind string) string {
 		return ""
 	}
 	if isTime || isNullTime {
-		return "DATETIME"
+		switch m.Driver {
+		case DBDriverPostgres:
+			return "TIMETZ"
+		case DBDriverMySQL:
+			return "DATETIME"
+		case DBDriverSQLite:
+			return "DATETIME"
+		}
 	}
 	switch kind {
 	case "int":
 		return "INT"
 	case "float":
+		switch m.Driver {
+		case DBDriverPostgres:
+			return "FLOAT8"
+		case DBDriverMySQL:
+			return "FLOAT"
+		case DBDriverSQLite:
+			return "FLOAT"
+		}
 		return "FLOAT"
 	case "string":
 		return fmt.Sprintf("VARCHAR(%d)", m.DefaultTextSize)
