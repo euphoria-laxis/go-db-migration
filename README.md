@@ -2,13 +2,27 @@
 
 Go package to generate and execute migration schemas using structure tags
 
+## Release notes
+
+* **Release v2.0.0**:
+  * GitHub action for test.
+  * Migrator config.
+  * Add database drivers *(MySQL, Postgres, SQlite)* to config.
+  * Separate MySQL migration support from Migrator instance.
+  * Add docker-compose CI for tests and GitHub workflow.
+* **Release v2.1.0**
+  * Update MySQL migration to separate schema creation.
+  * Add Postgres support.
+  * Update tests.
+  * Add Postgres container to docker-compose.
+
 ## Documentation
 
 ### Installation
 
 To add package to your go mod run :
 ````bash
-go get github.com/euphoria-laxis/go-db-migration@v2.0.0
+go get github.com/euphoria-laxis/go-db-migration@v2.1.0
 ````
 To generate the schema add the `migration` tag to your model structure.
 
@@ -86,12 +100,44 @@ must set in the structure tag the text type.
 
 #### Drivers
 
-|    Driver    |     Available      |     Availability status      |
-|:------------:|:------------------:|:----------------------------:|
-|  **MySQL**   | :white_check_mark: |          Available           |
-| **Postgres** | :white_check_mark: |          Available           |
-|  **SQLite**  |   :construction:   |       Work In Progress       |
-| **MariaDB**  |     :warning:      | Use MySQL driver for MariaDB |
+|    Driver    |     Available      |             Availability status             |
+|:------------:|:------------------:|:-------------------------------------------:|
+|  **MySQL**   | :white_check_mark: |                  Available                  |
+| **Postgres** | :white_check_mark: |                  Available                  |
+|  **SQLite**  |   :construction:   |              Work In Progress               |
+| **MariaDB**  |     :warning:      | Use MySQL driver for MariaDB *(not tested)* |
+
+## Roadmap
+
+### Planned features
+
+* Foreign keys creation and updates.
+* Handling more datatypes:
+  * Postgres:
+    * uuid
+    * date without timezone, timestamps.
+    * float4
+    * int(n)
+    * path
+    * json
+    * array
+    * bytea
+    * macaddr, macaddr8
+  * MySQL:
+    * uuid
+    * date, time, timestamp, year
+    * json
+    * binary, varbinary
+    * bit
+    * blob
+    * enum
+    * spatial data types
+* Database drivers:
+  * SQLite support.
+  * MariaDB support.
+* Soft delete (managed by a SQL function).
+* Postgres check.
+* Mysql column value range.
 
 ## Contribute
 
@@ -108,6 +154,17 @@ Update existing tests in [`migration_test.go`](./v2/migration/migration_test.go)
 file. It must be validated by [`go.yml`](./.github/workflows/go.yml) workflow to validate the pull
 request.
 
-## License
+### Submitting your contribution
 
-This project is under [MIT license](./LICENSE).
+Create a Pull Request on a branch following the naming convention as following :
+`staging/v + $RELEASE_VERSION` increment the minor version and rebase it to the superior version
+starting with `staging/`.
+
+Your commits will be reviewed and your pull request confirmed if everything is ok. If your PR
+requires modifications you will be contacted to apply them and resubmit your work.
+
+### Contributors
+
+* Euphoria Laxis
+  * Role : Maintainer, owner
+  * Contact : [euphoria.laxis@euphoria-laxis.com](mailto:euphoria.laxis@euphoria-laxis.com)
