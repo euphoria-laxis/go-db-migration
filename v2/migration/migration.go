@@ -30,25 +30,29 @@ func (m *Migrator) migrateModel(model reflect.Type) error {
 		table = toSnakeCase(table)
 	}
 
-	// ID must be first property of model structure
-	IDfield := model.Field(0)
-
-	tableMigration := fmt.Sprintf(
-		"CREATE TABLE IF NOT EXISTS %s\n(\n",
-		table,
-	)
-	tableMigration += "		"
-	tableMigration += toSnakeCase(IDfield.Name) + " "
-	tableMigration += m.convertType(IDfield.Type.String()) + " "
-	idValues := parseTag(IDfield.Tag.Get("migration"))
-	for _, constraint := range strings.Split(idValues["constraints"], ",") {
-		tableMigration += constraint + " "
-	}
-	tableMigration += "\n);"
-
-	_, err := m.DB.Exec(tableMigration)
-	if err != nil {
-		return err
+	switch m.Driver {
+	case DBDriverMySQL:
+		err := m.createMySqlSchemas(table, model)
+		if err != nil {
+			return err
+		}
+		break
+	case DBDriverPostgres:
+		err := m.createPostgresSchema(table, model)
+		if err != nil {
+			return err
+		}
+		break
+	case DBDriverSQLite:
+		// @TODO implement SQLite schema creation
+		return fmt.Errorf("sqlite driver was not implemented yet")
+		err := m.createSqliteSchema(table, model)
+		if err != nil {
+			return err
+		}
+		break
+	default:
+		return fmt.Errorf("unknown driver: %v, allowed drivers: [mysql,postgres,sqlite]", m.Driver)
 	}
 
 	for i := 1; i < model.NumField(); i++ {
@@ -65,19 +69,20 @@ func (m *Migrator) migrateModel(model reflect.Type) error {
 		}
 		switch m.Driver {
 		case DBDriverMySQL:
-			err = m.generateMySqlColumnMigration(table, values)
+			err := m.generateMySqlColumnMigration(table, values)
 			if err != nil {
 				return err
 			}
 			break
 		case DBDriverPostgres:
-			err = m.generatePostgresColumnMigration(table, values)
+			err := m.generatePostgresColumnMigration(table, values)
 			if err != nil {
 				return err
 			}
 			break
 		case DBDriverSQLite:
-			err = m.generateSqliteColumnMigration(table, values)
+			// @TODO implement SQLite column migration
+			err := m.generateSqliteColumnMigration(table, values)
 			if err != nil {
 				return err
 			}

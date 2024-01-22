@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 )
 
@@ -11,6 +12,27 @@ type Statistic struct {
 	NonUnique bool
 	IndexName string
 	Nullable  bool
+}
+
+func (m *Migrator) createMySqlSchemas(table string, model reflect.Type) error {
+	// ID must be first property of model structure
+	IDfield := model.Field(0)
+
+	tableMigration := fmt.Sprintf(
+		"CREATE TABLE IF NOT EXISTS %s\n(\n",
+		table,
+	)
+	tableMigration += "		"
+	tableMigration += toSnakeCase(IDfield.Name) + " "
+	tableMigration += m.convertType(IDfield.Type.String()) + " "
+	idValues := parseTag(IDfield.Tag.Get("migration"))
+	for _, constraint := range strings.Split(idValues["constraints"], ",") {
+		tableMigration += constraint + " "
+	}
+	tableMigration += "\n);"
+	_, err := m.DB.Exec(tableMigration)
+
+	return err
 }
 
 func (m *Migrator) generateMySqlColumnMigration(table string, params map[string]string) error {
@@ -119,7 +141,7 @@ func (m *Migrator) generateMySqlColumnMigration(table string, params map[string]
 	return nil
 }
 
-type Result struct {
+type MysqlTableInfo struct {
 	Field   string
 	Type    string
 	Null    string
@@ -128,13 +150,13 @@ type Result struct {
 	Default interface{}
 }
 
-func (m *Migrator) getMySqlSchemaInformation(table, column string) (*Result, error) {
+func (m *Migrator) getMySqlSchemaInformation(table, column string) (*MysqlTableInfo, error) {
 	query := fmt.Sprintf(
 		"select COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_KEY, EXTRA, COLUMN_DEFAULT from information_schema.COLUMNS where table_name = '%s' and column_name = '%s' ;",
 		table,
 		column,
 	)
-	var result Result
+	var result MysqlTableInfo
 	err := m.DB.QueryRow(query).Scan(&result.Field, &result.Type, &result.Null, &result.Key, &result.Extra, &result.Default)
 	if err != nil {
 		return nil, err

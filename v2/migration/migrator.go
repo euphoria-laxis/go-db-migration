@@ -51,7 +51,7 @@ var defaultOptions = Options{
 	SnakeCase:         true,
 	DB:                nil,
 	DefaultTextSize:   255,
-	IgnoreForeignKeys: false,
+	IgnoreForeignKeys: true,
 	TablePrefix:       "",
 }
 
