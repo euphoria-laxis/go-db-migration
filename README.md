@@ -89,7 +89,7 @@ must set in the structure tag the text type.
 |    Driver    |     Available      |     Availability status      |
 |:------------:|:------------------:|:----------------------------:|
 |  **MySQL**   | :white_check_mark: |          Available           |
-| **Postgres** |   :construction:   |       Work In Progress       |
+| **Postgres** | :white_check_mark: |          Available           |
 |  **SQLite**  |   :construction:   |       Work In Progress       |
 | **MariaDB**  |     :warning:      | Use MySQL driver for MariaDB |
 
