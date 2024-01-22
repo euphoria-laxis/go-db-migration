@@ -8,7 +8,7 @@ Go package to generate and execute migration schemas using structure tags
 
 To add package to your go mod run :
 ````bash
-go get github.com/euphoria-laxis/go-db-migration@v2.0.0
+go get github.com/euphoria-laxis/go-db-migration@v2.1.0
 ````
 To generate the schema add the `migration` tag to your model structure.
 
