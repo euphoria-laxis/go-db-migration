@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
+	"os"
+	"strings"
 	"testing"
 	"time"
 )
@@ -33,12 +35,20 @@ func TestGenerateMySQLMigrations(t *testing.T) {
 	}
 	m1 := model1{}
 	m2 := Model2{}
+	user := "migration_test"
+	password := "password@123"
+	dbname := "migration"
+	if strings.Compare(os.Getenv("ENVIRONMENT"), "test") == 0 {
+		user = os.Getenv("MYSQL_USER")
+		password = os.Getenv("MYSQL_PASSWORD")
+		dbname = os.Getenv("MYSQL_DATABASE")
+	}
 	cfg := mysql.Config{
-		User:                 "migration_test",
-		Passwd:               "password@123",
+		User:                 user,
+		Passwd:               password,
 		Net:                  "tcp",
 		Addr:                 "127.0.0.1:3306",
-		DBName:               "migration",
+		DBName:               dbname,
 		AllowNativePasswords: true,
 	}
 	var err error
@@ -93,6 +103,11 @@ func TestGeneratePostgresMigrations(t *testing.T) {
 	user := "migration_test"
 	password := "password@123"
 	dbname := "migration"
+	if strings.Compare(os.Getenv("ENVIRONMENT"), "test") == 0 {
+		user = os.Getenv("POSTGRES_USER")
+		password = os.Getenv("POSTGRES_PASSWORD")
+		dbname = os.Getenv("POSTGRES_DB")
+	}
 	dsn := fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host,

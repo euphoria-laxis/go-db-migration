@@ -10,9 +10,18 @@ on:
     branches: [ "master", "release/*" ]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
+    environment: test
+    env:
+      ENVIRONMENT: ${{ vars.environment }}
+      POSTGRES_DB: ${{ vars.postgres_db }}
+      POSTGRES_USER: ${{ vars.postgres_user }}
+      POSTGRES_PASSWORD: ${{ secrets.postgres_password }}
+      MYSQL_USER: ${{ vars.mysql_user }}
+      MYSQL_DATABASE: ${{ vars.mysql_database }}
+      MYSQL_PASSWORD: ${{ secrets.mysql_password }}
+      MYSQL_ROOT_PASSWORD: ${{ secrets.mysql_root_password }}
     steps:
     - uses: actions/checkout@v3
 
