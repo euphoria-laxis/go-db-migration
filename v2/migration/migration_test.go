@@ -45,6 +45,7 @@ func TestGenerateMySQLMigrations(t *testing.T) {
 	}
 	// Connect to MySQL
 	db, err := sql.Open("mysql", cfg.FormatDSN())
+	defer db.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -105,6 +106,7 @@ func TestGeneratePostgresMigrations(t *testing.T) {
 	)
 	// Connect to Postgres
 	db, err := sql.Open("postgres", dsn)
+	defer db.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
