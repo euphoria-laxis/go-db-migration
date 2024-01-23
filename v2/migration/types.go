@@ -43,6 +43,28 @@ func (m *Migrator) convertType(kind string) string {
 	}
 }
 
+func convertPostgresSqlType(datatype string) string {
+	if strings.Contains(datatype, "int") {
+		return "INT"
+	} else if strings.Contains(datatype, "float") {
+		return "FLOAT"
+	}
+	switch datatype {
+	case "character varying":
+		return "VARCHAR"
+	case "time with time zone":
+		return "TIMETZ"
+	case "time without time zone":
+		return "TIME"
+	case "text":
+		return "TEXT"
+	case "boolean":
+		return "BOOL"
+	default:
+		return ""
+	}
+}
+
 func convertSqlDataType(datatype string) string {
 	d := strings.ToLower(datatype)
 	if strings.Compare(d, "tinyint(1)") == 0 {

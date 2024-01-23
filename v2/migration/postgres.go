@@ -38,7 +38,7 @@ func (m *Migrator) generatePostgresColumnMigration(table string, params map[stri
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return err
 	}
-	if infos != nil && convertSqlDataType(infos.DataType) != strings.ToLower(params["type"]) {
+	if infos != nil && strings.Contains(strings.ToLower(params["type"]), strings.ToLower(convertPostgresSqlType(infos.DataType))) {
 		query := fmt.Sprintf(
 			"ALTER TABLE %s DROP COLUMN %s;",
 			table,
