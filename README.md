@@ -4,17 +4,22 @@ Go package to generate and execute migration schemas using structure tags
 
 ## Release notes
 
+* **Release v2.1.1**
+  * Remove SQLite from config and roadmap *(because it's a mess with no column update method)*.
+  * Fix Postgres columns update due to type comparison error.
+  * Don't update default value if it did not change for Postgres and MySQL.
+  * Close database clients in tests *(sorry I forgot, I know it's bad but I made this at 2am)*.
+* **Release v2.1.0**
+  * Update MySQL migration to separate schema creation.
+  * Add Postgres support.
+  * Update tests.
+  * Add Postgres container to docker-compose.
 * **Release v2.0.0**:
   * GitHub action for test.
   * Migrator config.
   * Add database drivers *(MySQL, Postgres, SQlite)* to config.
   * Separate MySQL migration support from Migrator instance.
   * Add docker-compose CI for tests and GitHub workflow.
-* **Release v2.1.0**
-  * Update MySQL migration to separate schema creation.
-  * Add Postgres support.
-  * Update tests.
-  * Add Postgres container to docker-compose.
 
 ## Documentation
 
@@ -104,7 +109,6 @@ must set in the structure tag the text type.
 |:------------:|:------------------:|:-------------------------------------------:|
 |  **MySQL**   | :white_check_mark: |                  Available                  |
 | **Postgres** | :white_check_mark: |                  Available                  |
-|  **SQLite**  |   :construction:   |              Work In Progress               |
 | **MariaDB**  |     :warning:      | Use MySQL driver for MariaDB *(not tested)* |
 
 ## Roadmap
@@ -133,7 +137,6 @@ must set in the structure tag the text type.
     * enum
     * spatial data types
 * Database drivers:
-  * SQLite support.
   * MariaDB support.
 * Soft delete (managed by a SQL function).
 * Postgres check.
