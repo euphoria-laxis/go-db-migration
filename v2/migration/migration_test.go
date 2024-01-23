@@ -20,7 +20,7 @@ func TestGenerateMySQLMigrations(t *testing.T) {
 		Content   string       `json:"content" migration:"type:text;constraints:not null"`
 		Role      string       `json:"role" migration:"constraints:not null;default:user"`
 	}
-	type Model2 struct {
+	type model2 struct {
 		ID        int          `json:"id" migration:"constraints:primary key,not null,unique,auto_increment;index"`
 		Username  string       `json:"username" migration:"constraints:not null,unique;index"`
 		CreatedAt time.Time    `json:"created_at" migration:"default:now()"`
@@ -31,24 +31,28 @@ func TestGenerateMySQLMigrations(t *testing.T) {
 		Role      string       `json:"role" migration:"constraints:not null;default:user"`
 		Valid     bool         `json:"valid" migration:"default:false"`
 	}
-	m1 := model1{}
-	m2 := Model2{}
+	user := "migration_test"
+	passwd := "password@123"
+	dbname := "migration"
+	// Generate MySQL config
 	cfg := mysql.Config{
-		User:                 "migration_test",
-		Passwd:               "password@123",
+		User:                 user,
+		Passwd:               passwd,
 		Net:                  "tcp",
 		Addr:                 "127.0.0.1:3306",
-		DBName:               "migration",
+		DBName:               dbname,
 		AllowNativePasswords: true,
 	}
-	var err error
+	// Connect to MySQL
 	db, err := sql.Open("mysql", cfg.FormatDSN())
+	defer db.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
-	pingErr := db.Ping()
-	if pingErr != nil {
-		t.Fatal(pingErr)
+	// Check if MySQL server is accessible
+	err = db.Ping()
+	if err != nil {
+		t.Fatal(err)
 	}
 	migrator := NewMigrator(
 		SetDB(db),
@@ -58,7 +62,7 @@ func TestGenerateMySQLMigrations(t *testing.T) {
 		SetDefaultTextSize(128),
 		SetDriver("mysql"),
 	)
-	err = migrator.MigrateModels(m1, m2)
+	err = migrator.MigrateModels(model1{}, model2{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -75,7 +79,7 @@ func TestGeneratePostgresMigrations(t *testing.T) {
 		Content   string       `json:"content" migration:"type:text;constraints:not null"`
 		Role      string       `json:"role" migration:"constraints:not null;default:user"`
 	}
-	type Model2 struct {
+	type model2 struct {
 		ID        int          `json:"id" migration:"constraints:primary key,not null,unique,auto_increment;index"`
 		Username  string       `json:"username" migration:"constraints:not null,unique;index"`
 		CreatedAt time.Time    `json:"created_at" migration:"default:now()"`
@@ -86,13 +90,12 @@ func TestGeneratePostgresMigrations(t *testing.T) {
 		Role      string       `json:"role" migration:"constraints:not null;default:user"`
 		Valid     bool         `json:"valid" migration:"default:false"`
 	}
-	m1 := model1{}
-	m2 := Model2{}
 	host := "localhost"
 	port := 5432
 	user := "migration_test"
 	password := "password@123"
 	dbname := "migration"
+	// Create Postgres DSN
 	dsn := fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host,
@@ -101,11 +104,13 @@ func TestGeneratePostgresMigrations(t *testing.T) {
 		password,
 		dbname,
 	)
-	// Connect to database
+	// Connect to Postgres
 	db, err := sql.Open("postgres", dsn)
+	defer db.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
+	// Check if Postgres server is accessible
 	err = db.Ping()
 	if err != nil {
 		t.Fatal(err)
@@ -118,7 +123,7 @@ func TestGeneratePostgresMigrations(t *testing.T) {
 		SetDefaultTextSize(128),
 		SetDriver("postgres"),
 	)
-	err = migrator.MigrateModels(m1, m2)
+	err = migrator.MigrateModels(model1{}, model2{})
 	if err != nil {
 		t.Fatal(err)
 	}

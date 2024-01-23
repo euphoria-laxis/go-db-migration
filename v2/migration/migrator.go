@@ -5,7 +5,6 @@ import "database/sql"
 const (
 	DBDriverPostgres DBDriver = iota
 	DBDriverMySQL
-	DBDriverSQLite
 )
 
 type DBDriver int
@@ -16,10 +15,8 @@ func (d DBDriver) String() string {
 		return "postgres"
 	case DBDriverMySQL:
 		return "mysql"
-	case DBDriverSQLite:
-		return "sqlite"
 	default:
-		return "sqlite"
+		return "mysql"
 	}
 }
 
@@ -29,10 +26,8 @@ func NewDBDriver(driver string) DBDriver {
 		return DBDriverPostgres
 	case "mysql":
 		return DBDriverMySQL
-	case "sqlite":
-		return DBDriverSQLite
 	default:
-		return DBDriverSQLite
+		return DBDriverMySQL
 	}
 }
 

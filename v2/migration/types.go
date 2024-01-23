@@ -21,8 +21,6 @@ func (m *Migrator) convertType(kind string) string {
 			return "TIMETZ"
 		case DBDriverMySQL:
 			return "DATETIME"
-		case DBDriverSQLite:
-			return "DATETIME"
 		}
 	}
 	switch kind {
@@ -34,13 +32,33 @@ func (m *Migrator) convertType(kind string) string {
 			return "FLOAT8"
 		case DBDriverMySQL:
 			return "FLOAT"
-		case DBDriverSQLite:
-			return "FLOAT"
 		}
 		return "FLOAT"
 	case "string":
 		return fmt.Sprintf("VARCHAR(%d)", m.DefaultTextSize)
 	case "bool":
+		return "BOOL"
+	default:
+		return ""
+	}
+}
+
+func convertPostgresSqlType(datatype string) string {
+	if strings.Contains(datatype, "int") {
+		return "INT"
+	} else if strings.Contains(datatype, "float") {
+		return "FLOAT"
+	}
+	switch datatype {
+	case "character varying":
+		return "VARCHAR"
+	case "time with time zone":
+		return "TIMETZ"
+	case "time without time zone":
+		return "TIME"
+	case "text":
+		return "TEXT"
+	case "boolean":
 		return "BOOL"
 	default:
 		return ""

@@ -43,16 +43,8 @@ func (m *Migrator) migrateModel(model reflect.Type) error {
 			return err
 		}
 		break
-	case DBDriverSQLite:
-		// @TODO implement SQLite schema creation
-		return fmt.Errorf("sqlite driver was not implemented yet")
-		err := m.createSqliteSchema(table, model)
-		if err != nil {
-			return err
-		}
-		break
 	default:
-		return fmt.Errorf("unknown driver: %v, allowed drivers: [mysql,postgres,sqlite]", m.Driver)
+		return fmt.Errorf("unknown driver: %v, allowed drivers: [mysql,postgres]", m.Driver)
 	}
 
 	for i := 1; i < model.NumField(); i++ {
@@ -80,15 +72,8 @@ func (m *Migrator) migrateModel(model reflect.Type) error {
 				return err
 			}
 			break
-		case DBDriverSQLite:
-			// @TODO implement SQLite column migration
-			err := m.generateSqliteColumnMigration(table, values)
-			if err != nil {
-				return err
-			}
-			break
 		default:
-			return fmt.Errorf("unknown driver: %v, allowed drivers: [mysql,postgres,sqlite]", m.Driver)
+			return fmt.Errorf("unknown driver: %v, allowed drivers: [mysql,postgres]", m.Driver)
 		}
 	}
 
