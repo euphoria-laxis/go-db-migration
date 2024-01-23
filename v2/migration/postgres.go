@@ -21,7 +21,7 @@ func (m *Migrator) createPostgresSchema(table string, model reflect.Type) error 
 	idValues := parseTag(IDfield.Tag.Get("migration"))
 	for _, constraint := range strings.Split(idValues["constraints"], ",") {
 		if strings.Contains(constraint, "auto_increment") {
-			// replace 'auto_increment' with 'nextval('table_name_id_seq')' for postgres compatibility
+			// For 'auto_increment' replace 'INT' with 'SERIAL' for postgres compatibility
 			tableMigration = strings.Replace(tableMigration, "INT", "SERIAL", -1)
 		} else {
 			tableMigration += constraint + " "
@@ -38,7 +38,7 @@ func (m *Migrator) generatePostgresColumnMigration(table string, params map[stri
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return err
 	}
-	if infos != nil && convertSqlDataType(infos.DataType) != strings.ToLower(params["type"]) {
+	if infos != nil && strings.Contains(strings.ToLower(params["type"]), strings.ToLower(convertPostgresSqlType(infos.DataType))) {
 		query := fmt.Sprintf(
 			"ALTER TABLE %s DROP COLUMN %s;",
 			table,
@@ -61,6 +61,10 @@ func (m *Migrator) generatePostgresColumnMigration(table string, params map[stri
 		if !rowExist {
 			return err
 		}
+	}
+	infos, err = m.getPostgresSchemaInformation(table, params["column"])
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return err
 	}
 	constraints, hasConstraint := params["constraints"]
 	if hasConstraint {
@@ -99,9 +103,13 @@ func (m *Migrator) generatePostgresColumnMigration(table string, params map[stri
 			}
 		}
 	}
+	infos, err = m.getPostgresSchemaInformation(table, params["column"])
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return err
+	}
 	defaultValue, hasDefaultValue := params["default"]
-	if hasDefaultValue {
-		if strings.Contains(params["type"], "VARCHAR") {
+	if hasDefaultValue && defaultValue != infos.Default {
+		if strings.Contains(params["type"], "VARCHAR") || strings.Contains(params["type"], "TEXT") {
 			defaultValue = "'" + defaultValue + "'"
 		}
 		query = fmt.Sprintf(
