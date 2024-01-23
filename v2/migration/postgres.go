@@ -62,6 +62,10 @@ func (m *Migrator) generatePostgresColumnMigration(table string, params map[stri
 			return err
 		}
 	}
+	infos, err = m.getPostgresSchemaInformation(table, params["column"])
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return err
+	}
 	constraints, hasConstraint := params["constraints"]
 	if hasConstraint {
 		for _, constraint := range strings.Split(constraints, ",") {
@@ -99,9 +103,13 @@ func (m *Migrator) generatePostgresColumnMigration(table string, params map[stri
 			}
 		}
 	}
+	infos, err = m.getPostgresSchemaInformation(table, params["column"])
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return err
+	}
 	defaultValue, hasDefaultValue := params["default"]
-	if hasDefaultValue {
-		if strings.Contains(params["type"], "VARCHAR") {
+	if hasDefaultValue && defaultValue != infos.Default {
+		if strings.Contains(params["type"], "VARCHAR") || strings.Contains(params["type"], "TEXT") {
 			defaultValue = "'" + defaultValue + "'"
 		}
 		query = fmt.Sprintf(

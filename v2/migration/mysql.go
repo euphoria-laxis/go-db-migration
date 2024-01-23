@@ -64,6 +64,10 @@ func (m *Migrator) generateMySqlColumnMigration(table string, params map[string]
 			return err
 		}
 	}
+	infos, err = m.getMySqlSchemaInformation(table, params["column"])
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return err
+	}
 	constraints, hasConstraint := params["constraints"]
 	if hasConstraint {
 		for _, constraint := range strings.Split(constraints, ",") {
@@ -94,9 +98,13 @@ func (m *Migrator) generateMySqlColumnMigration(table string, params map[string]
 			}
 		}
 	}
+	infos, err = m.getMySqlSchemaInformation(table, params["column"])
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return err
+	}
 	defaultValue, hasDefaultValue := params["default"]
-	if hasDefaultValue {
-		if strings.Contains(params["type"], "VARCHAR") {
+	if hasDefaultValue && defaultValue != infos.Default {
+		if strings.Contains(params["type"], "VARCHAR") || strings.Contains(params["type"], "TEXT") {
 			defaultValue = "'" + defaultValue + "'"
 		}
 		query = fmt.Sprintf(
