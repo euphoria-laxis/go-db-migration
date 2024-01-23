@@ -21,7 +21,7 @@ func (m *Migrator) createPostgresSchema(table string, model reflect.Type) error 
 	idValues := parseTag(IDfield.Tag.Get("migration"))
 	for _, constraint := range strings.Split(idValues["constraints"], ",") {
 		if strings.Contains(constraint, "auto_increment") {
-			// replace 'auto_increment' with 'nextval('table_name_id_seq')' for postgres compatibility
+			// For 'auto_increment' replace 'INT' with 'SERIAL' for postgres compatibility
 			tableMigration = strings.Replace(tableMigration, "INT", "SERIAL", -1)
 		} else {
 			tableMigration += constraint + " "
