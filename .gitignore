@@ -25,6 +25,3 @@ go.work
 
 # SQL files output directory
 sql/
-
-# SQLite test db
-migration_test.sqlite

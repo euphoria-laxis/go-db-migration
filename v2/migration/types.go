@@ -21,8 +21,6 @@ func (m *Migrator) convertType(kind string) string {
 			return "TIMETZ"
 		case DBDriverMySQL:
 			return "DATETIME"
-		case DBDriverSQLite:
-			return "DATETIME"
 		}
 	}
 	switch kind {
@@ -33,8 +31,6 @@ func (m *Migrator) convertType(kind string) string {
 		case DBDriverPostgres:
 			return "FLOAT8"
 		case DBDriverMySQL:
-			return "FLOAT"
-		case DBDriverSQLite:
 			return "FLOAT"
 		}
 		return "FLOAT"
