@@ -24,10 +24,15 @@ func (m *Migrator) createMySqlSchemas(table string, model reflect.Type) error {
 	)
 	tableMigration += "		"
 	tableMigration += toSnakeCase(IDfield.Name) + " "
-	tableMigration += m.convertType(IDfield.Type.String()) + " "
-	idValues := parseTag(IDfield.Tag.Get("migration"))
-	for _, constraint := range strings.Split(idValues["constraints"], ",") {
-		tableMigration += constraint + " "
+	pkType := m.convertType(IDfield.Type.String())
+	tableMigration += pkType + " "
+	if pkType == "binary(16)" {
+		tableMigration += "UNIQUE NOT NULL DEFAULT (UUID_TO_BIN(UUID()))"
+	} else {
+		idValues := parseTag(IDfield.Tag.Get("migration"))
+		for _, constraint := range strings.Split(idValues["constraints"], ",") {
+			tableMigration += constraint + " "
+		}
 	}
 	tableMigration += "\n);"
 	_, err := m.DB.Exec(tableMigration)
@@ -106,6 +111,8 @@ func (m *Migrator) generateMySqlColumnMigration(table string, params map[string]
 	if hasDefaultValue && defaultValue != infos.Default {
 		if strings.Contains(params["type"], "VARCHAR") || strings.Contains(params["type"], "TEXT") {
 			defaultValue = "'" + defaultValue + "'"
+		} else if strings.Contains(defaultValue, "uuid") {
+			defaultValue = "(UUID_TO_BIN(UUID()))"
 		}
 		query = fmt.Sprintf(
 			"ALTER TABLE %s MODIFY COLUMN %s %s DEFAULT %s;\n",
