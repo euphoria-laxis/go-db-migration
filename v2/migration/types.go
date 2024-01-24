@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// convertType convert go type to SQL datatype
 func (m *Migrator) convertType(kind string) string {
 	isTime, err := regexp.MatchString("Time$", kind)
 	if err != nil {
@@ -21,6 +22,18 @@ func (m *Migrator) convertType(kind string) string {
 			return "TIMETZ"
 		case DBDriverMySQL:
 			return "DATETIME"
+		}
+	}
+	isUuid, err := regexp.MatchString("UUID", kind)
+	if err != nil {
+		return ""
+	}
+	if isUuid {
+		switch m.Driver {
+		case DBDriverPostgres:
+			return "UUID"
+		case DBDriverMySQL:
+			return "binary(16)"
 		}
 	}
 	switch kind {

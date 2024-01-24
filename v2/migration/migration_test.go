@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/go-sql-driver/mysql"
+	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"testing"
 	"time"
@@ -19,9 +20,11 @@ func TestGenerateMySQLMigrations(t *testing.T) {
 		Name      string       `json:"name" migration:"constraint:not null"`
 		Content   string       `json:"content" migration:"type:text;constraints:not null"`
 		Role      string       `json:"role" migration:"constraints:not null;default:user"`
+		Count     int          `json:"count" migration:"constraints:not null;default:-2"`
+		SessionID uuid.UUID    `json:"session_id" migrations:"default:uuid"`
 	}
 	type model2 struct {
-		ID        int          `json:"id" migration:"constraints:primary key,not null,unique,auto_increment;index"`
+		ID        uuid.UUID    `json:"id" migration:"constraints:primary key;index"`
 		Username  string       `json:"username" migration:"constraints:not null,unique;index"`
 		CreatedAt time.Time    `json:"created_at" migration:"default:now()"`
 		UpdatedAt time.Time    `json:"updated_at" migration:"default:now()"`
@@ -78,9 +81,11 @@ func TestGeneratePostgresMigrations(t *testing.T) {
 		Name      string       `json:"name" migration:"constraint:not null"`
 		Content   string       `json:"content" migration:"type:text;constraints:not null"`
 		Role      string       `json:"role" migration:"constraints:not null;default:user"`
+		Count     int          `json:"count" migration:"constraints:not null;default:-2"`
+		SessionID uuid.UUID    `json:"session_id" migrations:"default:uuid"`
 	}
 	type model2 struct {
-		ID        int          `json:"id" migration:"constraints:primary key,not null,unique,auto_increment;index"`
+		ID        uuid.UUID    `json:"id" migration:"constraints:primary key;index"`
 		Username  string       `json:"username" migration:"constraints:not null,unique;index"`
 		CreatedAt time.Time    `json:"created_at" migration:"default:now()"`
 		UpdatedAt time.Time    `json:"updated_at" migration:"default:now()"`
@@ -112,6 +117,10 @@ func TestGeneratePostgresMigrations(t *testing.T) {
 	}
 	// Check if Postgres server is accessible
 	err = db.Ping()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -17,14 +17,19 @@ func (m *Migrator) createPostgresSchema(table string, model reflect.Type) error 
 	)
 	tableMigration += "		"
 	tableMigration += toSnakeCase(IDfield.Name) + " "
+	pkType := m.convertType(IDfield.Type.String())
 	tableMigration += m.convertType(IDfield.Type.String()) + " "
-	idValues := parseTag(IDfield.Tag.Get("migration"))
-	for _, constraint := range strings.Split(idValues["constraints"], ",") {
-		if strings.Contains(constraint, "auto_increment") {
-			// For 'auto_increment' replace 'INT' with 'SERIAL' for postgres compatibility
-			tableMigration = strings.Replace(tableMigration, "INT", "SERIAL", -1)
-		} else {
-			tableMigration += constraint + " "
+	if strings.Contains(pkType, "UUID") {
+		tableMigration += "UNIQUE NOT NULL DEFAULT uuid_generate_v4()"
+	} else {
+		idValues := parseTag(IDfield.Tag.Get("migration"))
+		for _, constraint := range strings.Split(idValues["constraints"], ",") {
+			if strings.Contains(constraint, "auto_increment") {
+				// For 'auto_increment' replace 'INT' with 'SERIAL' for postgres compatibility
+				tableMigration = strings.Replace(tableMigration, "INT", "SERIAL", -1)
+			} else {
+				tableMigration += constraint + " "
+			}
 		}
 	}
 	tableMigration += "\n);"
@@ -89,10 +94,8 @@ func (m *Migrator) generatePostgresColumnMigration(table string, params map[stri
 					fmt.Sprintf("unique_%s_%s", table, params["column"]),
 					params["column"],
 				)
-				break
 			case "not null":
 				query += fmt.Sprintf("ALTER COLUMN %s SET NOT NULL;\n", params["column"])
-				break
 			default:
 				fmt.Printf("unknown constraint : %s\n", constraints)
 				continue
@@ -111,6 +114,8 @@ func (m *Migrator) generatePostgresColumnMigration(table string, params map[stri
 	if hasDefaultValue && defaultValue != infos.Default {
 		if strings.Contains(params["type"], "VARCHAR") || strings.Contains(params["type"], "TEXT") {
 			defaultValue = "'" + defaultValue + "'"
+		} else if strings.Contains(defaultValue, "uuid") {
+			defaultValue = "uuid_generate_v4()"
 		}
 		query = fmt.Sprintf(
 			"ALTER TABLE %s ALTER COLUMN %s SET DEFAULT %s;\n",

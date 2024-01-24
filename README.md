@@ -32,61 +32,69 @@ To add package to your go mod run :
 ````bash
 go get github.com/euphoria-laxis/go-db-migration@v2.1.2
 ````
-To generate the schema add the `migration` tag to your model structure.
+
+To generate the schema add the `migration` tag to your model structure then play the migrations.
+
+**Example :**
 
 ````go
-type model1 struct {
-    ID        int          `migration:"constraints:primary key,not null,unique,auto_increment;index"`
-    Username  string       `migration:"constraints:not null,unique;index"`
-    CreatedAt time.Time    `migration:"default:now()"`
-    UpdatedAt time.Time    `migration:"default:now()"`
-    DeletedAt sql.NullTime `migration:"default:now()"`
-    Name      string       `migration:"constraint:not null"`
-    Content   string       `migration:"type:text;constraints:not null"`
-    Role      string       `migration:"constraints:not null;default:user"`
-}
-type Model2 struct {
-    ID        int          `migration:"constraints:primary key,not null,unique,auto_increment;index"`
-    Username  string       `migration:"constraints:not null,unique;index"`
-    CreatedAt time.Time    `migration:"default:now()"`
-    UpdatedAt time.Time    `migration:"default:now()"`
-    DeletedAt sql.NullTime `migration:"default:now()"`
-    Name      string       `migration:"constraints:not null"`
-    Content   string       `migration:"type:text;constraints:not null"`
-    Role      string       `migration:"constraints:not null;default:user"`
-    Valid     bool         `migration:"default:false"`
-}
-````
+package main
 
-Then play the migrations 
-
-````go
-// create model
-m1 := model1{}
-m2 := Model2{}
-// connect to database
-cfg := mysql.Config{
-    User:                 "migration_test",
-    Passwd:               "password@123",
-    Net:                  "tcp",
-    Addr:                 "127.0.0.1:3306",
-    DBName:               "migration",
-    AllowNativePasswords: true,
-}
-db, _ := sql.Open("mysql", cfg.FormatDSN())
-// set migration options
-migrator := NewMigrator(
-    SetDB(db),
-    SetTablePrefix("app_"),
-    WithForeignKeys(true),
-    WithSnakeCase(true),
-    SetDefaultTextSize(128),
-    SetDriver("mysql"),
+import (
+	// add this library to
+    migrator "github.com/euphoria-laxis/go-db-migration"
+	
+    "database/sql"
+    "fmt"
+    "github.com/go-sql-driver/mysql"
+    "github.com/google/uuid"
+    "time"
 )
-// generate and execute schemas
-err := migrator.MigrateModels(m1, m2)
-if err != nil {
-    panic(err)
+
+type model1 struct {
+    ID        int          `json:"id" migration:"constraints:primary key,not null,unique,auto_increment;index"`
+    Username  string       `json:"username" migration:"constraints:not null,unique;index"`
+    CreatedAt time.Time    `json:"created_at" migration:"default:now()"`
+    UpdatedAt time.Time    `json:"updated_at" migration:"default:now()"`
+    DeletedAt sql.NullTime `json:"deleted_at"`
+    Name      string       `json:"name" migration:"constraint:not null"`
+    Content   string       `json:"content" migration:"type:text;constraints:not null"`
+    Role      string       `json:"role" migration:"constraints:not null;default:user"`
+    Count     int          `json:"count" migration:"constraints:not null;default:-2"`
+    SessionID uuid.UUID    `json:"session_id" migrations:"default:uuid"`
+}
+
+type model2 struct {
+    ID        uuid.UUID    `json:"id" migration:"constraints:primary key;index"`
+    Username  string       `json:"username" migration:"constraints:not null,unique;index"`
+    CreatedAt time.Time    `json:"created_at" migration:"default:now()"`
+    UpdatedAt time.Time    `json:"updated_at" migration:"default:now()"`
+    DeletedAt sql.NullTime `json:"deleted_at"`
+    Name      string       `json:"name" migration:"constraints:not null"`
+    Content   string       `json:"content" migration:"type:text;constraints:not null"`
+    Role      string       `json:"role" migration:"constraints:not null;default:user"`
+    Valid     bool         `json:"valid" migration:"default:false"`
+}
+
+func main() {
+    // Connect to MySQL
+    db, err := sql.Open("mysql", cfg.FormatDSN())
+    defer db.Close()
+    if err != nil {
+		t.Fatal(err)
+    }
+    m := migrator.NewMigrator(
+        SetDB(db),
+        SetTablePrefix("app_"),
+        WithForeignKeys(true),
+        WithSnakeCase(true),
+        SetDefaultTextSize(128),
+        SetDriver("mysql"),
+    )
+    err = m.MigrateModels(model1{}, model2{})
+    if err != nil {
+        panic(err)
+    }
 }
 ````
 
@@ -121,15 +129,42 @@ must set in the structure tag the text type.
 * Foreign keys creation and updates.
 * Handling more datatypes:
   * Postgres:
-    * uuid
-    * date without timezone, timestamps.
-    * float4
-    * int(n)
-    * path
-    * json
-    * array
+    * bigint
+    * bigserial serial8
+    * bit [ (n) ]
+    * bit varying [ (n) ]    varbit [ (n) ]
+    * box
     * bytea
-    * macaddr, macaddr8
+    * character [ (n) ]    char [ (n) ]
+    * cidr
+    * circle
+    * date
+    * double precision float8
+    * inet
+    * integer
+    * interval [ fields ] [ (p) ]
+    * json
+    * jsonb
+    * line
+    * lseg
+    * macaddr
+    * macaddr8
+    * money
+    * numeric [ (p, s) ]    decimal [ (p, s) ]
+    * path
+    * pg_lsn
+    * pg_snapshot
+    * point
+    * polygon
+    * real float4
+    * smallint int2
+    * smallserial serial2
+    * serial serial4
+    * timestamp [ (p) ] [ without time zone ]
+    * timestamp [ (p) ] with time zone timestamptz
+    * tsquery
+    * tsvector
+    * txid_snapshot
   * MySQL:
     * uuid
     * date, time, timestamp, year

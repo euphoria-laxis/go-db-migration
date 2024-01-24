@@ -24,10 +24,15 @@ func (m *Migrator) createMySqlSchemas(table string, model reflect.Type) error {
 	)
 	tableMigration += "		"
 	tableMigration += toSnakeCase(IDfield.Name) + " "
-	tableMigration += m.convertType(IDfield.Type.String()) + " "
-	idValues := parseTag(IDfield.Tag.Get("migration"))
-	for _, constraint := range strings.Split(idValues["constraints"], ",") {
-		tableMigration += constraint + " "
+	pkType := m.convertType(IDfield.Type.String())
+	tableMigration += pkType + " "
+	if pkType == "binary(16)" {
+		tableMigration += "UNIQUE NOT NULL DEFAULT (UUID_TO_BIN(UUID()))"
+	} else {
+		idValues := parseTag(IDfield.Tag.Get("migration"))
+		for _, constraint := range strings.Split(idValues["constraints"], ",") {
+			tableMigration += constraint + " "
+		}
 	}
 	tableMigration += "\n);"
 	_, err := m.DB.Exec(tableMigration)
@@ -106,6 +111,8 @@ func (m *Migrator) generateMySqlColumnMigration(table string, params map[string]
 	if hasDefaultValue && defaultValue != infos.Default {
 		if strings.Contains(params["type"], "VARCHAR") || strings.Contains(params["type"], "TEXT") {
 			defaultValue = "'" + defaultValue + "'"
+		} else if strings.Contains(defaultValue, "uuid") {
+			defaultValue = "(UUID_TO_BIN(UUID()))"
 		}
 		query = fmt.Sprintf(
 			"ALTER TABLE %s MODIFY COLUMN %s %s DEFAULT %s;\n",
@@ -123,7 +130,9 @@ func (m *Migrator) generateMySqlColumnMigration(table string, params map[string]
 	_, isIndex := params["index"]
 	if isIndex {
 		query = fmt.Sprintf(
-			"SELECT NON_UNIQUE, INDEX_NAME, NULLABLE FROM information_schema.statistics WHERE table_name = '%s' AND column_name = '%s';",
+			`SELECT NON_UNIQUE, INDEX_NAME, NULLABLE 
+					FROM information_schema.statistics 
+					WHERE table_name = '%s' AND column_name = '%s';`,
 			table,
 			params["column"],
 		)
@@ -160,7 +169,9 @@ type MysqlTableInfo struct {
 
 func (m *Migrator) getMySqlSchemaInformation(table, column string) (*MysqlTableInfo, error) {
 	query := fmt.Sprintf(
-		"select COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_KEY, EXTRA, COLUMN_DEFAULT from information_schema.COLUMNS where table_name = '%s' and column_name = '%s' ;",
+		`SELECT COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_KEY, EXTRA, COLUMN_DEFAULT
+				FROM information_schema.COLUMNS
+				WHERE table_name = '%s' AND column_name = '%s' ;`,
 		table,
 		column,
 	)
