@@ -123,6 +123,7 @@ must set in the structure tag the text type.
 
 ### Planned features
 
+* Retrieve primary key instead of using first key.
 * Foreign keys creation and updates.
 * Handling more datatypes:
   * Postgres:
