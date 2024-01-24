@@ -89,10 +89,8 @@ func (m *Migrator) generatePostgresColumnMigration(table string, params map[stri
 					fmt.Sprintf("unique_%s_%s", table, params["column"]),
 					params["column"],
 				)
-				break
 			case "not null":
 				query += fmt.Sprintf("ALTER COLUMN %s SET NOT NULL;\n", params["column"])
-				break
 			default:
 				fmt.Printf("unknown constraint : %s\n", constraints)
 				continue

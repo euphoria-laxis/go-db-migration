@@ -123,7 +123,9 @@ func (m *Migrator) generateMySqlColumnMigration(table string, params map[string]
 	_, isIndex := params["index"]
 	if isIndex {
 		query = fmt.Sprintf(
-			"SELECT NON_UNIQUE, INDEX_NAME, NULLABLE FROM information_schema.statistics WHERE table_name = '%s' AND column_name = '%s';",
+			`SELECT NON_UNIQUE, INDEX_NAME, NULLABLE 
+					FROM information_schema.statistics 
+					WHERE table_name = '%s' AND column_name = '%s';`,
 			table,
 			params["column"],
 		)
@@ -160,7 +162,9 @@ type MysqlTableInfo struct {
 
 func (m *Migrator) getMySqlSchemaInformation(table, column string) (*MysqlTableInfo, error) {
 	query := fmt.Sprintf(
-		"select COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_KEY, EXTRA, COLUMN_DEFAULT from information_schema.COLUMNS where table_name = '%s' and column_name = '%s' ;",
+		`SELECT COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_KEY, EXTRA, COLUMN_DEFAULT
+				FROM information_schema.COLUMNS
+				WHERE table_name = '%s' AND column_name = '%s' ;`,
 		table,
 		column,
 	)
