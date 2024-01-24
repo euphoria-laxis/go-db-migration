@@ -126,15 +126,42 @@ must set in the structure tag the text type.
 * Foreign keys creation and updates.
 * Handling more datatypes:
   * Postgres:
-    * uuid
-    * date without timezone, timestamps.
-    * float4
-    * int(n)
-    * path
-    * json
-    * array
+    * bigint
+    * bigserial serial8
+    * bit [ (n) ]
+    * bit varying [ (n) ]    varbit [ (n) ]
+    * box
     * bytea
-    * macaddr, macaddr8
+    * character [ (n) ]    char [ (n) ]
+    * cidr
+    * circle
+    * date
+    * double precision float8
+    * inet
+    * integer
+    * interval [ fields ] [ (p) ]
+    * json
+    * jsonb
+    * line
+    * lseg
+    * macaddr
+    * macaddr8
+    * money
+    * numeric [ (p, s) ]    decimal [ (p, s) ]
+    * path
+    * pg_lsn
+    * pg_snapshot
+    * point
+    * polygon
+    * real float4
+    * smallint int2
+    * smallserial serial2
+    * serial serial4
+    * timestamp [ (p) ] [ without time zone ]
+    * timestamp [ (p) ] with time zone timestamptz
+    * tsquery
+    * tsvector
+    * txid_snapshot
   * MySQL:
     * uuid
     * date, time, timestamp, year
