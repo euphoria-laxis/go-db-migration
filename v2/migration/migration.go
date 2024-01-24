@@ -36,13 +36,11 @@ func (m *Migrator) migrateModel(model reflect.Type) error {
 		if err != nil {
 			return err
 		}
-		break
 	case DBDriverPostgres:
 		err := m.createPostgresSchema(table, model)
 		if err != nil {
 			return err
 		}
-		break
 	default:
 		return fmt.Errorf("unknown driver: %v, allowed drivers: [mysql,postgres]", m.Driver)
 	}
@@ -65,13 +63,11 @@ func (m *Migrator) migrateModel(model reflect.Type) error {
 			if err != nil {
 				return err
 			}
-			break
 		case DBDriverPostgres:
 			err := m.generatePostgresColumnMigration(table, values)
 			if err != nil {
 				return err
 			}
-			break
 		default:
 			return fmt.Errorf("unknown driver: %v, allowed drivers: [mysql,postgres]", m.Driver)
 		}
