@@ -4,6 +4,9 @@ Go package to generate and execute migration schemas using structure tags
 
 ## Release notes
 
+* **Release v2.1.2**
+  * Add UUID support.
+  * Reformat code and remove useless break.
 * **Release v2.1.1**
   * Remove SQLite from config and roadmap *(because it's a mess with no column update method)*.
   * Fix Postgres columns update due to type comparison error.
