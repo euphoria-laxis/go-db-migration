@@ -120,6 +120,10 @@ func TestGeneratePostgresMigrations(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	_, err = db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`)
+	if err != nil {
+		t.Fatal(err)
+	}
 	migrator := NewMigrator(
 		SetDB(db),
 		SetTablePrefix("app_"),
