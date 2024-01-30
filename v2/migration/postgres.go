@@ -116,6 +116,8 @@ func (m *Migrator) generatePostgresColumnMigration(table string, params map[stri
 			defaultValue = "'" + defaultValue + "'"
 		} else if strings.Contains(defaultValue, "uuid") {
 			defaultValue = "uuid_generate_v4()"
+		} else if strings.Contains(strings.ToUpper(params["type"]), "INTERVAL") {
+			defaultValue = fmt.Sprintf(`'%s years'`, defaultValue)
 		}
 		query = fmt.Sprintf(
 			"ALTER TABLE %s ALTER COLUMN %s SET DEFAULT %s;\n",
