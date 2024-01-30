@@ -100,9 +100,9 @@ func TestGeneratePostgresMigrations(t *testing.T) {
 	}
 	host := "localhost"
 	port := 5432
-	user := "migration"
+	user := "migration_test"
 	password := "password@123"
-	dbname := "migration_test"
+	dbname := "migration"
 	// Create Postgres DSN
 	dsn := fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
