@@ -4,6 +4,8 @@ Go package to generate and execute migration schemas using structure tags
 
 ## Release notes
 
+* **Release v2.1.3**
+    * Add datatype YEAR *(managed with datatype interval for postgres)*.
 * **Release v2.1.1**
   * Remove SQLite from config and roadmap *(because it's a mess with no column update method)*.
   * Fix Postgres columns update due to type comparison error.
@@ -27,7 +29,7 @@ Go package to generate and execute migration schemas using structure tags
 
 To add package to your go mod run :
 ````bash
-go get github.com/euphoria-laxis/go-db-migration@v2.1.2
+go get github.com/euphoria-laxis/go-db-migration@v2.1.3
 ````
 
 To generate the schema add the `migration` tag to your model structure then play the migrations.
@@ -140,7 +142,7 @@ must set in the structure tag the text type.
         * double precision float8
         * inet
         * integer
-        * interval [ fields ] [ (p) ]
+      * interval [ fields ] [ (p) ] *(done for years)*
         * json
         * jsonb
         * line
@@ -165,7 +167,7 @@ must set in the structure tag the text type.
         * txid_snapshot
     * MySQL:
         * uuid
-        * date, time, timestamp, year
+      * date, time, timestamp
         * json
         * binary, varbinary
         * bit
