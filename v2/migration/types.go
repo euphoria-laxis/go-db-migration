@@ -6,6 +6,53 @@ import (
 	"strings"
 )
 
+/**** POSTGRES TYPE LIST ****/
+/**
+bigint
+bigserial 	serial8
+bit [ (n) ]
+bit varying [ (n) ] 	varbit [ (n) ]
+boolean 	bool
+box
+bytea
+character [ (n) ] 	char [ (n) ]
+character varying [ (n) ] 	varchar [ (n) ]
+cidr
+circle
+date
+double precision 	float8
+inet
+integer
+interval [ fields ] [ (p) ]
+json
+jsonb
+line
+lseg
+macaddr
+macaddr8
+money
+numeric [ (p, s) ] 	decimal [ (p, s) ]
+path
+pg_lsn
+pg_snapshot
+point
+polygon
+real 	float4
+smallint 	int2
+smallserial 	serial2
+serial 	serial4
+text
+time [ (p) ] [ without time zone ]
+time [ (p) ] with time zone 	timetz
+timestamp [ (p) ] [ without time zone ]
+timestamp [ (p) ] with time zone 	timestamptz
+tsquery
+tsvector
+txid_snapshot
+uuid
+xml
+**/
+
 // convertType convert go type to SQL datatype
 func (m *Migrator) convertType(kind string) string {
 	isTime, err := regexp.MatchString("Time$", kind)
@@ -36,24 +83,99 @@ func (m *Migrator) convertType(kind string) string {
 			return "binary(16)"
 		}
 	}
+	isBool, err := regexp.MatchString("Bool", kind)
+	if err != nil {
+		return ""
+	}
+	if isBool {
+		switch m.Driver {
+		case DBDriverPostgres:
+			return "BOOL"
+		case DBDriverMySQL:
+			return "TINYINT(1)"
+		}
+	}
+	isYear, err := regexp.MatchString("Year", kind)
+	if err != nil {
+		return ""
+	}
+	if isYear {
+		switch m.Driver {
+		case DBDriverPostgres:
+			return "INTERVAL"
+		case DBDriverMySQL:
+			return "YEAR"
+		}
+	}
 	switch kind {
 	case "int":
 		return "INT"
-	case "float":
+	case "int8":
 		switch m.Driver {
 		case DBDriverPostgres:
-			return "FLOAT8"
+			return "INT8"
+		case DBDriverMySQL:
+			return "TINYINT"
+		}
+	case "uint8":
+		switch m.Driver {
+		case DBDriverPostgres:
+			return "INT8"
+		case DBDriverMySQL:
+			return "TINYINT"
+		}
+	case "int16":
+		return "SMALLINT"
+	case "uint16":
+		return "SMALLINT"
+	case "int32":
+		switch m.Driver {
+		case DBDriverPostgres:
+			return "INT32"
+		case DBDriverMySQL:
+			return "INT"
+		}
+	case "uint32":
+		switch m.Driver {
+		case DBDriverPostgres:
+			return "INT32"
+		case DBDriverMySQL:
+			return "INT"
+		}
+	case "int64":
+		return "BIGINT"
+	case "uint64":
+		return "BIGINT"
+	case "float32":
+		switch m.Driver {
+		case DBDriverPostgres:
+			return "DOUBLE PRECISION"
 		case DBDriverMySQL:
 			return "FLOAT"
 		}
-		return "FLOAT"
+	case "float64":
+		switch m.Driver {
+		case DBDriverPostgres:
+			return "NUMERIC"
+		case DBDriverMySQL:
+			return "DOUBLE"
+		}
 	case "string":
 		return fmt.Sprintf("VARCHAR(%d)", m.DefaultTextSize)
 	case "bool":
 		return "BOOL"
+	case "[]byte":
+		switch m.Driver {
+		case DBDriverPostgres:
+			return "BYTEA"
+		case DBDriverMySQL:
+			return "BLOB"
+		}
 	default:
 		return ""
 	}
+
+	return ""
 }
 
 func convertPostgresSqlType(datatype string) string {

@@ -3,6 +3,7 @@ package migration
 import (
 	"database/sql"
 	"fmt"
+	"github.com/euphoria-laxis/go-db-migration/v2/types"
 	"github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
@@ -24,15 +25,16 @@ func TestGenerateMySQLMigrations(t *testing.T) {
 		SessionID uuid.UUID    `json:"session_id" migrations:"default:uuid"`
 	}
 	type model2 struct {
-		ID        uuid.UUID    `json:"id" migration:"constraints:primary key;index"`
-		Username  string       `json:"username" migration:"constraints:not null,unique;index"`
-		CreatedAt time.Time    `json:"created_at" migration:"default:now()"`
-		UpdatedAt time.Time    `json:"updated_at" migration:"default:now()"`
-		DeletedAt sql.NullTime `json:"deleted_at"`
-		Name      string       `json:"name" migration:"constraints:not null"`
-		Content   string       `json:"content" migration:"type:text;constraints:not null"`
-		Role      string       `json:"role" migration:"constraints:not null;default:user"`
-		Valid     bool         `json:"valid" migration:"default:false"`
+		ID               uuid.UUID    `json:"id" migration:"constraints:primary key;index"`
+		Username         string       `json:"username" migration:"constraints:not null,unique;index"`
+		CreatedAt        time.Time    `json:"created_at" migration:"default:now()"`
+		UpdatedAt        time.Time    `json:"updated_at" migration:"default:now()"`
+		DeletedAt        sql.NullTime `json:"deleted_at"`
+		Name             string       `json:"name" migration:"constraints:not null"`
+		Content          string       `json:"content" migration:"type:text;constraints:not null"`
+		Role             string       `json:"role" migration:"constraints:not null;default:user"`
+		Valid            bool         `json:"valid" migration:"default:false"`
+		SubscriptionYear types.Year   `json:"subscription_year" migration:"constraints:not null;default:2000"`
 	}
 	user := "migration_test"
 	passwd := "password@123"
@@ -85,15 +87,16 @@ func TestGeneratePostgresMigrations(t *testing.T) {
 		SessionID uuid.UUID    `json:"session_id" migrations:"default:uuid"`
 	}
 	type model2 struct {
-		ID        uuid.UUID    `json:"id" migration:"constraints:primary key;index"`
-		Username  string       `json:"username" migration:"constraints:not null,unique;index"`
-		CreatedAt time.Time    `json:"created_at" migration:"default:now()"`
-		UpdatedAt time.Time    `json:"updated_at" migration:"default:now()"`
-		DeletedAt sql.NullTime `json:"deleted_at"`
-		Name      string       `json:"name" migration:"constraints:not null"`
-		Content   string       `json:"content" migration:"type:text;constraints:not null"`
-		Role      string       `json:"role" migration:"constraints:not null;default:user"`
-		Valid     bool         `json:"valid" migration:"default:false"`
+		ID               uuid.UUID    `json:"id" migration:"constraints:primary key;index"`
+		Username         string       `json:"username" migration:"constraints:not null,unique;index"`
+		CreatedAt        time.Time    `json:"created_at" migration:"default:now()"`
+		UpdatedAt        time.Time    `json:"updated_at" migration:"default:now()"`
+		DeletedAt        sql.NullTime `json:"deleted_at"`
+		Name             string       `json:"name" migration:"constraints:not null"`
+		Content          string       `json:"content" migration:"type:text;constraints:not null"`
+		Role             string       `json:"role" migration:"constraints:not null;default:user"`
+		Valid            bool         `json:"valid" migration:"default:false"`
+		SubscriptionYear types.Year   `json:"subscription_year" migration:"constraints:not null;default:2000"`
 	}
 	host := "localhost"
 	port := 5432

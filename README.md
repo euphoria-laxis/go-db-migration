@@ -4,6 +4,8 @@ Go package to generate and execute migration schemas using structure tags
 
 ## Release notes
 
+* **Release v2.1.3**
+  * Add datatype YEAR *(managed with datatype interval for postgres)*.
 * **Release v2.1.2**
   * Add UUID support.
   * Reformat code and remove useless break.
@@ -30,7 +32,7 @@ Go package to generate and execute migration schemas using structure tags
 
 To add package to your go mod run :
 ````bash
-go get github.com/euphoria-laxis/go-db-migration@v2.1.2
+go get github.com/euphoria-laxis/go-db-migration@v2.1.3
 ````
 
 To generate the schema add the `migration` tag to your model structure then play the migrations.
@@ -126,56 +128,57 @@ must set in the structure tag the text type.
 
 ### Planned features
 
+* Retrieve primary key instead of using first key.
 * Foreign keys creation and updates.
 * Handling more datatypes:
-  * Postgres:
-    * bigint
-    * bigserial serial8
-    * bit [ (n) ]
-    * bit varying [ (n) ]    varbit [ (n) ]
-    * box
-    * bytea
-    * character [ (n) ]    char [ (n) ]
-    * cidr
-    * circle
-    * date
-    * double precision float8
-    * inet
-    * integer
-    * interval [ fields ] [ (p) ]
-    * json
-    * jsonb
-    * line
-    * lseg
-    * macaddr
-    * macaddr8
-    * money
-    * numeric [ (p, s) ]    decimal [ (p, s) ]
-    * path
-    * pg_lsn
-    * pg_snapshot
-    * point
-    * polygon
-    * real float4
-    * smallint int2
-    * smallserial serial2
-    * serial serial4
-    * timestamp [ (p) ] [ without time zone ]
-    * timestamp [ (p) ] with time zone timestamptz
-    * tsquery
-    * tsvector
-    * txid_snapshot
-  * MySQL:
-    * uuid
-    * date, time, timestamp, year
-    * json
-    * binary, varbinary
-    * bit
-    * blob
-    * enum
-    * spatial data types
+    * Postgres:
+        * bigint
+        * bigserial serial8
+        * bit [ (n) ]
+        * bit varying [ (n) ]    varbit [ (n) ]
+        * box
+        * bytea
+        * character [ (n) ]    char [ (n) ]
+        * cidr
+        * circle
+        * date
+        * double precision float8
+        * inet
+        * integer
+        * interval [ fields ] [ (p) ] *(done for years)*
+        * json
+        * jsonb
+        * line
+        * lseg
+        * macaddr
+        * macaddr8
+        * money
+        * numeric [ (p, s) ]    decimal [ (p, s) ]
+        * path
+        * pg_lsn
+        * pg_snapshot
+        * point
+        * polygon
+        * real float4
+        * smallint int2
+        * smallserial serial2
+        * serial serial4
+        * timestamp [ (p) ] [ without time zone ]
+        * timestamp [ (p) ] with time zone timestamptz
+        * tsquery
+        * tsvector
+        * txid_snapshot
+    * MySQL:
+        * uuid
+        * date, time, timestamp
+        * json
+        * binary, varbinary
+        * bit
+        * blob
+        * enum
+        * spatial data types
 * Database drivers:
-  * MariaDB support.
+    * MariaDB support.
 * Soft delete (managed by a SQL function).
 * Postgres check.
 * Mysql column value range.
